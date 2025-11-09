@@ -7,31 +7,31 @@ const path = require('path');
 
 const app = express();
 
-// ✅ STEP 1: Apply CORS globally and FIRST
+// ✅ STEP 1: Apply CORS
 app.use(
   cors({
-    origin: 'http://localhost:3000', // React dev server
+    origin: process.env.CLIENT_ORIGIN || 'http://localhost:3000',
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'x-auth-token'],
   })
 );
-app.options(/.*/, cors()); // handles preflight requests
+app.options(/.*/, cors());
 
-// ✅ STEP 2: Enable JSON parsing
+// ✅ STEP 2: Middleware
 app.use(express.json());
 
-// ✅ STEP 3: Mount API routes
+// ✅ STEP 3: Routes
 const apiRouter = require('./routes/api');
 app.use('/api', apiRouter);
 
-// ✅ STEP 4: Connect MongoDB
+// ✅ STEP 4: MongoDB Connection
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => console.log('✅ MongoDB Connected'))
   .catch((err) => console.error('❌ MongoDB Error:', err));
 
-// ✅ STEP 5: Serve frontend in production
+// ✅ STEP 5: Serve frontend only in production (if deployed elsewhere)
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, '../frontend/build')));
   app.get(/.*/, (req, res) =>
@@ -39,6 +39,10 @@ if (process.env.NODE_ENV === 'production') {
   );
 }
 
-// ✅ STEP 6: Start server
-const PORT = process.env.PORT || 5001;
-app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+// ✅ STEP 6: Export app for Vercel, and listen only if running locally
+if (process.env.VERCEL) {
+  module.exports = app; // for Vercel serverless deployment
+} else {
+  const PORT = process.env.PORT || 5001;
+  app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
+}
