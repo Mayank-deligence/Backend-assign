@@ -21,7 +21,7 @@ app.use(
   })
 );
 
-app.options(/.*/, cors());
+// app.options(/.*/, cors());
 
 // ✅ STEP 2: Middleware
 app.use(express.json());
