@@ -10,12 +10,17 @@ const app = express();
 // ✅ STEP 1: Apply CORS
 app.use(
   cors({
-    origin: process.env.CLIENT_ORIGIN || 'http://localhost:3000',
+    origin: [
+      "http://localhost:3000",
+      "http://localhost:5173",
+      "https://frontend-assign-psi.vercel.app", // your frontend domain
+    ],
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization', 'x-auth-token'],
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "x-auth-token"],
   })
 );
+
 app.options(/.*/, cors());
 
 // ✅ STEP 2: Middleware
