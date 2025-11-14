@@ -7,6 +7,16 @@ const path = require('path');
 
 const app = express();
 
+// // ✅ STEP 1: Apply CORS
+// app.use(
+//   cors({
+//     origin: process.env.CLIENT_ORIGIN || 'http://localhost:3000',
+//     credentials: true,
+//     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+//     allowedHeaders: ['Content-Type', 'Authorization', 'x-auth-token'],
+//   })
+// );
+// app.options(/.*/, cors());
 // ✅ STEP 1: Apply CORS
 app.use(
   cors({

@@ -26,34 +26,22 @@ const auth = (req, res, next) => {
   }
 };
 
-// Simple login (using fixed credentials)
+// Simple login (creates user if not present). Returns { token }
 router.post('/auth/login', async (req, res) => {
   const { email, password } = req.body;
+  if(!email || !password) return res.status(400).json({ msg: 'Missing credentials' });
 
-  const FIXED_EMAIL = "test@example.com"; // Fixed email
-  const FIXED_PASSWORD = "password@123";  // Fixed password
-
-  // Check if email and password match the fixed values
-  if (email !== FIXED_EMAIL || password !== FIXED_PASSWORD) {
-    return res.status(400).json({ msg: "Invalid credentials" });
-  }
-
-  // Check if the user exists in the database
   let user = await User.findOne({ email });
-  
-  // If user does not exist, create a new one
   if (!user) {
     const salt = await bcrypt.genSalt(10);
-    const hashed = await bcrypt.hash(FIXED_PASSWORD, salt);
+    const hashed = await bcrypt.hash(password, salt);
     user = new User({ email, password: hashed });
     await user.save();
   } else {
-    // If user exists, compare password (even though it's the same)
-    const ok = await bcrypt.compare(FIXED_PASSWORD, user.password);
+    const ok = await bcrypt.compare(password, user.password);
     if (!ok) return res.status(400).json({ msg: 'Invalid credentials' });
   }
 
-  // Generate a JWT token
   const token = jwt.sign({ id: user._id }, JWT_SECRET, { expiresIn: '7d' });
   res.json({ token });
 });
